@@ -14,18 +14,17 @@ fn handle_client(mut stream: TcpStream) -> io::Result<()> {
 
     let mut start_of_file: bool = false;
     for i in buff.iter().take(100).skip(1) {
-        if *i == b'\n' {
-            break;
-        }
-        if *i == b'/' && !start_of_file {
-            start_of_file = true;
-            continue;
-        }
-        if start_of_file && *i == b' ' {
-            break;
-        }
-        if start_of_file {
-            request.push(*i as char);
+        match *i {
+            b'\n' => break,
+            b'/' if !start_of_file => {
+                start_of_file = true;
+                continue;
+            }
+            b' ' if start_of_file => break,
+            _ if start_of_file => {
+                request.push(*i as char);
+            }
+            _ => (),
         }
     }
 
