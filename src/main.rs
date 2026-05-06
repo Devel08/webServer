@@ -49,17 +49,15 @@ fn handle_client(mut stream: TcpStream) -> io::Result<()> {
         println!("Sent data to the client.");
     } else {
         let status_line = "HTTP/1.1 200 OK\r\n";
-        let mut headers = "";
 
         let cache_control = "Cache-Control: public, max-age=86400\r\n";
 
-        if path.extension().unwrap() == "ico" {
-            headers = "Content-Type: image/vnd.microsoft.icon\r\n";
-        } else if path.extension().unwrap() == "gif" {
-            headers = "Content-Type: image/gif\r\n"
-        } else if path.extension().unwrap() == "ogg" {
-            headers = "Content-Type: application/ogg\r\n"
-        }
+        let headers = match path.extension().unwrap().to_str() {
+            Some("ico") => "Content-Type: image/vnd.microsoft.icon\r\n",
+            Some("gif") => "Content-Type: image/gif\r\n",
+            Some("ogg") => "Content-Type: application/ogg\r\n",
+            _ => "",
+        };
 
         let content = fs::read(&request)?;
         let content_length = content.len();
